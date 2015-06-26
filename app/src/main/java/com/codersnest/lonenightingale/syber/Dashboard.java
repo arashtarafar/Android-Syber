@@ -145,7 +145,7 @@ public class Dashboard extends ActionBarActivity {
 
         if(!text.isEmpty()) {
             //        db.execSQL("INSERT INTO post VALUES ('" + prefs.getInt("post_id", 0) + "', '" + userId + "', '" + input.getText().toString() + "', '0', '0', '0', '0');");
-            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, number_of_hash_tags) VALUES ('" + userId + "', '" + text + "', '0', '" + calendar.get(Calendar.DATE) + "', '" + calendar.get(Calendar.HOUR) + "', '0');");
+            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, number_of_hash_tags) VALUES ('" + userId + "', '" + text + "', '0', 'date()', 'time()', '0');");
 
 //            Cursor cursor = db.rawQuery("SELECT post_id FROM post WHERE (user_id, text) = (" + userId + ", " + text + ")", null);
 //            cursor.moveToFirst();
@@ -156,6 +156,9 @@ public class Dashboard extends ActionBarActivity {
             //        db.execSQL("INSERT INTO status VALUES ('" + prefs.getInt("post_id", 0) + "', '0', '0');");
             db.execSQL("INSERT INTO status (post_id, number_of_comments, number_of_shares) SELECT post_id, 0, 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
             //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
+            mAdapter = new ListAdapter(getPosts());
+            mRecyclerView.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
         }
         else {
             Toast.makeText(context, "Enter Text!", Toast.LENGTH_SHORT).show();
@@ -216,6 +219,11 @@ public class Dashboard extends ActionBarActivity {
         @Override
         public int getItemCount() {
             return mDataset.length;
+        }
+
+        @Override
+        public void registerAdapterDataObserver(RecyclerView.AdapterDataObserver observer) {
+            super.registerAdapterDataObserver(observer);
         }
     }
 }
