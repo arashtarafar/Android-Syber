@@ -38,8 +38,16 @@
         <activity
             android:name=".Profile"
             android:label="@string/title_activity_profile"
-            android:theme="@style/Theme.FloatingWindow.Popup"
+            android:parentActivityName=".Dashboard"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.FloatingWindow.Popup" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codersnest.lonenightingale.syber.Dashboard" />
+        </activity>
+        <activity
+            android:name=".Details"
+            android:label="@string/title_activity_details"
             android:parentActivityName=".Dashboard" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

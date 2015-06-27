@@ -4,38 +4,16 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Like"
-        android:id="@+id/button_like"
-        android:background="@drawable/button_shape"
-        android:layout_below="@+id/indic_details"
-        android:layout_toLeftOf="@+id/button_comments"
-        android:layout_toStartOf="@+id/button_comments"
-        android:layout_margin="2dp" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Share"
-        android:id="@+id/button_share"
-        android:background="@drawable/button_shape"
-        android:layout_below="@+id/indic_details"
-        android:layout_toRightOf="@+id/button_comments"
-        android:layout_toEndOf="@+id/button_comments"
-        android:layout_margin="2dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Comments"
         android:id="@+id/button_comments"
         android:background="@drawable/button_shape"
-        android:layout_alignTop="@+id/button_like"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
         android:layout_marginBottom="2dp"
         android:paddingLeft="10sp"
-        android:paddingRight="10sp" />
+        android:paddingRight="10sp"
+        android:layout_below="@+id/indic_details" />
 
     <TextView
         android:layout_width="match_parent"

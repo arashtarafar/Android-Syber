@@ -8,11 +8,12 @@ public class Status extends Post {
     private int numberOfComments;
     private int numberOfShares;
 
-    public Status (int authorId, String text, String author, String time, String date, int numberOfLikes, int numberOfHashTags, int numberOfComments, int numberOfShares) {
+    public Status (int postId, int authorId, String text, String author, String time, String date, int numberOfLikes, int numberOfHashTags, int numberOfComments, int numberOfShares) {
         this.text = text;
         this.author = author;
         this.time = time;
         this.date = date;
+        this.postId = postId;
         this.authorId = authorId;
         this.numberOfLikes = numberOfLikes;
         this.numberOfHashTags = numberOfHashTags;

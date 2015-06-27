@@ -94,7 +94,7 @@ public class Profile extends ActionBarActivity {
         Status[] posts = null;
         int numberOfPosts = 0;
 
-        Cursor cursor = db.rawQuery("SELECT text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member WHERE user_id = '" + userId + "' ORDER BY date, time DESC", null);
+        Cursor cursor = db.rawQuery("SELECT post_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member WHERE user_id = '" + userId + "' ORDER BY date, time DESC", null);
         numberOfPosts = cursor.getCount();
         cursor.moveToFirst();
 
@@ -104,11 +104,12 @@ public class Profile extends ActionBarActivity {
             String author = cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name"));
             String time = cursor.getString(cursor.getColumnIndex("time"));
             String date = cursor.getString(cursor.getColumnIndex("date"));
+            int postId = cursor.getInt(cursor.getColumnIndex("post_id"));
             int numberOfLikes = cursor.getInt(cursor.getColumnIndex("number_of_likes"));
             int numberOfHashTags = cursor.getInt(cursor.getColumnIndex("number_of_hash_tags"));
             int numberOfComments = cursor.getInt(cursor.getColumnIndex("number_of_comments"));
             int numberOfShares = cursor.getInt(cursor.getColumnIndex("number_of_shares"));
-            posts[iterator] = new Status(userId, text, author, time, date, numberOfLikes, numberOfHashTags, numberOfComments, numberOfShares);
+            posts[iterator] = new Status(postId, userId, text, author, time, date, numberOfLikes, numberOfHashTags, numberOfComments, numberOfShares);
             cursor.moveToNext();
         }
 

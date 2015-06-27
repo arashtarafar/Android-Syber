@@ -8,7 +8,10 @@ public class Post {
     protected String author;
     protected String time;
     protected String date;
+
     protected int authorId;
+    protected int postId;
+
     protected int numberOfLikes;
     protected int numberOfHashTags;
 
@@ -39,6 +42,14 @@ public class Post {
     protected int getAuthorId () { return authorId; }
 
     protected void setAuthorId (int authorId) { this.authorId = authorId; }
+
+    public int getPostId() {
+        return postId;
+    }
+
+    public void setPostId(int postId) {
+        this.postId = postId;
+    }
 
     protected void setText (String text) {
         this.text = text;

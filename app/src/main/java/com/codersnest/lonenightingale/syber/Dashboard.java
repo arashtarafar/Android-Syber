@@ -96,7 +96,7 @@ public class Dashboard extends ActionBarActivity {
         Status[] posts = null;
         int numberOfPosts = 0;
 
-        Cursor cursor = db.rawQuery("SELECT user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member ORDER BY date, time DESC", null);
+        Cursor cursor = db.rawQuery("SELECT post_id, user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member ORDER BY date, time DESC", null);
         numberOfPosts = cursor.getCount();
         cursor.moveToFirst();
 
@@ -106,12 +106,13 @@ public class Dashboard extends ActionBarActivity {
             String author = cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name"));
             String time = cursor.getString(cursor.getColumnIndex("time"));
             String date = cursor.getString(cursor.getColumnIndex("date"));
+            int postId = cursor.getInt(cursor.getColumnIndex("post_id"));
             int authorId = cursor.getInt(cursor.getColumnIndex("user_id"));
             int numberOfLikes = cursor.getInt(cursor.getColumnIndex("number_of_likes"));
             int numberOfHashTags = cursor.getInt(cursor.getColumnIndex("number_of_hash_tags"));
             int numberOfComments = cursor.getInt(cursor.getColumnIndex("number_of_comments"));
             int numberOfShares = cursor.getInt(cursor.getColumnIndex("number_of_shares"));
-            posts[iterator] = new Status(authorId, text, author, time, date, numberOfLikes, numberOfHashTags, numberOfComments, numberOfShares);
+            posts[iterator] = new Status(postId, authorId, text, author, time, date, numberOfLikes, numberOfHashTags, numberOfComments, numberOfShares);
             cursor.moveToNext();
         }
 
@@ -155,7 +156,9 @@ public class Dashboard extends ActionBarActivity {
 
 
             //        db.execSQL("INSERT INTO status VALUES ('" + prefs.getInt("post_id", 0) + "', '0', '0');");
-            db.execSQL("INSERT INTO status (post_id, number_of_comments, number_of_shares) SELECT post_id, 0, 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
+            db.execSQL("INSERT INTO status (number_of_comments, number_of_shares) SELECT 0, 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
+            // Causes FC when posting duplicate statuses
+
             //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
 
             // Inefficient method for updating the list of posts
@@ -214,6 +217,7 @@ public class Dashboard extends ActionBarActivity {
             // code to assign data to different views inside the view_holder
             TextView tv = (TextView) holder.v.findViewById(R.id.text_post_content);
             TextView tv2 = (TextView) holder.v.findViewById(R.id.indic_details);
+            Button comments = (Button) holder.v.findViewById(R.id.button_comments);
             tv.setText(mDataset[position].getText());
             tv2.setText("Written by " + mDataset[position].getAuthor() + " on " + mDataset[position].getDate() + " in " + mDataset[position].getTime() + " with " + mDataset[position].getNumberOfLikes() + " likes, " + mDataset[position].getNumberOfComments() + " comments and " + mDataset[position].getNumberOfShares() + " shares so far...");
             tv2.setOnClickListener(new View.OnClickListener() {
@@ -221,11 +225,20 @@ public class Dashboard extends ActionBarActivity {
                 public void onClick(View v) {
                     if(mDataset[position].getAuthorId() != userId)
                     {
-                        Intent window = new Intent(getApplicationContext(), Profile.class);
+                        Intent window = new Intent(context, Profile.class);
                         window.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         window.putExtra("userId", mDataset[position].getAuthorId());
                         startActivity(window);
                     }
+                }
+            });
+            comments.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, Details.class);
+                    intent.putExtra("postId", mDataset[position].getPostId());
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.slide_out_left,R.anim.slide_in_right);
                 }
             });
         }
