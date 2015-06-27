@@ -2,7 +2,6 @@ package com.codersnest.lonenightingale.syber;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBar;
@@ -10,22 +9,23 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Calendar;
+import java.util.Random;
 
 
-public class Dashboard extends ActionBarActivity {
+public class Profile extends ActionBarActivity {
 
     private Context context;
     private SQLiteDatabase db;
@@ -34,46 +34,31 @@ public class Dashboard extends ActionBarActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private EditText input;
-    private TextView title;
-
     private int userId;
-
-    private SharedPreferences prefs;
-    private SharedPreferences.Editor editor;
-
-    private Calendar calendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        setUpWindow();
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.activity_profile);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         context = getApplicationContext();
 
-        prefs = getSharedPreferences("preferences", MODE_PRIVATE);
-        editor = prefs.edit();
-
-        calendar = Calendar.getInstance();
-
-        userId = getIntent().getExtras().getInt("id");
+        userId = getIntent().getExtras().getInt("userId");
 
         db = context.openOrCreateDatabase("database", context.MODE_PRIVATE, null);
 
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-        input = (EditText) findViewById(R.id.field_status);
-        title = (TextView) findViewById(R.id.title_dashboard);
-
         Cursor cursor = db.rawQuery("SELECT first_name, last_name FROM member WHERE user_id = '" + userId + "'", null);
         cursor.moveToFirst();
-        title.setText(cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name")) + "'s Syber");
 
-        //        recyclerView = (RecyclerView) findViewById(R.id.listQuestions);
-        mRecyclerView = (RecyclerView) findViewById(R.id.list_posts);
+        actionBar.setTitle(cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name")) + "'s Profile");
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.list_posts_profile);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -87,46 +72,9 @@ public class Dashboard extends ActionBarActivity {
 //        recyclerView.setAdapter(adapter);
 //        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
+
         mAdapter = new ListAdapter(getPosts());
         mRecyclerView.setAdapter(mAdapter);
-    }
-
-    private Status[] getPosts () {
-
-        Status[] posts = null;
-        int numberOfPosts = 0;
-
-        Cursor cursor = db.rawQuery("SELECT user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member ORDER BY date, time DESC", null);
-        numberOfPosts = cursor.getCount();
-        cursor.moveToFirst();
-
-        posts = new Status[numberOfPosts];
-        for (int iterator = 0; iterator < numberOfPosts; iterator ++) {
-            String text = cursor.getString(cursor.getColumnIndex("text"));
-            String author = cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name"));
-            String time = cursor.getString(cursor.getColumnIndex("time"));
-            String date = cursor.getString(cursor.getColumnIndex("date"));
-            int authorId = cursor.getInt(cursor.getColumnIndex("user_id"));
-            int numberOfLikes = cursor.getInt(cursor.getColumnIndex("number_of_likes"));
-            int numberOfHashTags = cursor.getInt(cursor.getColumnIndex("number_of_hash_tags"));
-            int numberOfComments = cursor.getInt(cursor.getColumnIndex("number_of_comments"));
-            int numberOfShares = cursor.getInt(cursor.getColumnIndex("number_of_shares"));
-            posts[iterator] = new Status(authorId, text, author, time, date, numberOfLikes, numberOfHashTags, numberOfComments, numberOfShares);
-            cursor.moveToNext();
-        }
-
-        return posts;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.slide_out_right,R.anim.slide_in_left);
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -141,31 +89,68 @@ public class Dashboard extends ActionBarActivity {
         db.close();
     }
 
-    public void post (View v) {
-        String text = input.getText().toString();
+    private Status[] getPosts () {
 
-        if(!text.isEmpty()) {
-            //        db.execSQL("INSERT INTO post VALUES ('" + prefs.getInt("post_id", 0) + "', '" + userId + "', '" + input.getText().toString() + "', '0', '0', '0', '0');");
-            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, number_of_hash_tags) VALUES ('" + userId + "', '" + text + "', '0', date(), time(), '0');");
+        Status[] posts = null;
+        int numberOfPosts = 0;
 
-//            Cursor cursor = db.rawQuery("SELECT post_id FROM post WHERE (user_id, text) = (" + userId + ", " + text + ")", null);
-//            cursor.moveToFirst();
+        Cursor cursor = db.rawQuery("SELECT text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member WHERE user_id = '" + userId + "' ORDER BY date, time DESC", null);
+        numberOfPosts = cursor.getCount();
+        cursor.moveToFirst();
 
-            input.setText("");
-
-
-            //        db.execSQL("INSERT INTO status VALUES ('" + prefs.getInt("post_id", 0) + "', '0', '0');");
-            db.execSQL("INSERT INTO status (post_id, number_of_comments, number_of_shares) SELECT post_id, 0, 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
-            //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
-
-            // Inefficient method for updating the list of posts
-            mAdapter = new ListAdapter(getPosts());
-            mRecyclerView.setAdapter(mAdapter);
-            mAdapter.notifyDataSetChanged();
+        posts = new Status[numberOfPosts];
+        for (int iterator = 0; iterator < numberOfPosts; iterator ++) {
+            String text = cursor.getString(cursor.getColumnIndex("text"));
+            String author = cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name"));
+            String time = cursor.getString(cursor.getColumnIndex("time"));
+            String date = cursor.getString(cursor.getColumnIndex("date"));
+            int numberOfLikes = cursor.getInt(cursor.getColumnIndex("number_of_likes"));
+            int numberOfHashTags = cursor.getInt(cursor.getColumnIndex("number_of_hash_tags"));
+            int numberOfComments = cursor.getInt(cursor.getColumnIndex("number_of_comments"));
+            int numberOfShares = cursor.getInt(cursor.getColumnIndex("number_of_shares"));
+            posts[iterator] = new Status(userId, text, author, time, date, numberOfLikes, numberOfHashTags, numberOfComments, numberOfShares);
+            cursor.moveToNext();
         }
-        else {
-            Toast.makeText(context, "Enter Text!", Toast.LENGTH_SHORT).show();
+
+        return posts;
+    }
+
+    public void setUpWindow() {
+
+        // Creates the layout for the window and the look of it
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+                WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
+        // Params for the window.
+        // You can easily set the alpha and the dim behind the window from here
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.alpha = 1.0f;    // lower than one makes it more transparent
+        params.dimAmount = 0f;  // set it higher if you want to dim behind the window
+        getWindow().setAttributes(params);
+
+        // Gets the display size so that you can set the window to a percent of that
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+
+        // You could also easily used an integer value from the shared preferences to set the percent
+        if (height > width) {
+            getWindow().setLayout((int) (width * .9), (int) (height * .7));
+        } else {
+            getWindow().setLayout((int) (width * .7), (int) (height * .8));
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return false;
     }
 
     private class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
@@ -201,7 +186,7 @@ public class Dashboard extends ActionBarActivity {
         public ViewHolder onCreateViewHolder(ViewGroup parent,
                                              int viewType) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.status_item, parent, false);
+                    .inflate(R.layout.status_profile, parent, false);
             return new ViewHolder(v);
         }
 
@@ -212,22 +197,10 @@ public class Dashboard extends ActionBarActivity {
             // - replace the contents of the view with that element
 
             // code to assign data to different views inside the view_holder
-            TextView tv = (TextView) holder.v.findViewById(R.id.text_post_content);
-            TextView tv2 = (TextView) holder.v.findViewById(R.id.indic_details);
+            TextView tv = (TextView) holder.v.findViewById(R.id.text_post_content_profile);
+            TextView tv2 = (TextView) holder.v.findViewById(R.id.indic_details_profile);
             tv.setText(mDataset[position].getText());
-            tv2.setText("Written by " + mDataset[position].getAuthor() + " on " + mDataset[position].getDate() + " in " + mDataset[position].getTime() + " with " + mDataset[position].getNumberOfLikes() + " likes, " + mDataset[position].getNumberOfComments() + " comments and " + mDataset[position].getNumberOfShares() + " shares so far...");
-            tv2.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(mDataset[position].getAuthorId() != userId)
-                    {
-                        Intent window = new Intent(getApplicationContext(), Profile.class);
-                        window.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        window.putExtra("userId", mDataset[position].getAuthorId());
-                        startActivity(window);
-                    }
-                }
-            });
+            tv2.setText("Written on " + mDataset[position].getDate() + " in " + mDataset[position].getTime() + " with " + mDataset[position].getNumberOfLikes() + " likes, " + mDataset[position].getNumberOfComments() + " comments and " + mDataset[position].getNumberOfShares() + " shares so far...");
         }
 
         // Return the size of your dataset (invoked by the layout manager)

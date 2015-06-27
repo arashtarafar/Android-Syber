@@ -7,5 +7,6 @@
     <string name="title_activity_signup">Signup</string>
     <string name="details_prompt">Please fill in the form below:</string>
     <string name="title_activity_dashboard">Dashboard</string>
+    <string name="title_activity_profile">Profile</string>
 
 </resources>
