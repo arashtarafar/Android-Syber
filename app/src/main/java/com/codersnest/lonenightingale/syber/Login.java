@@ -44,7 +44,7 @@ public class Login extends ActionBarActivity {
         db.execSQL("CREATE TABLE IF NOT EXISTS admin (user_id INT, FOREIGN KEY (user_id) REFERENCES analyzer(user_id));");
 
         // Tables for posts
-        db.execSQL("CREATE TABLE IF NOT EXISTS post (post_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT, text VARCHAR, number_of_likes INT, date DATE, time TIME, number_of_hash_tags INT);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS post (post_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT, text VARCHAR, number_of_likes INT, date DATE, time TIME, date_time DATETIME, number_of_hash_tags INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS status (post_id INTEGER PRIMARY KEY, number_of_comments INT, number_of_shares INT, FOREIGN KEY (post_id) REFERENCES post(post_id));");
         db.execSQL("CREATE TABLE IF NOT EXISTS comment (status_id INT, post_id INTEGER PRIMARY KEY, number_of_replies INT, FOREIGN KEY (post_id) REFERENCES post(post_id));");
         db.execSQL("CREATE TABLE IF NOT EXISTS reply (comment_id INT, post_id INTEGER PRIMARY KEY, FOREIGN KEY (post_id) REFERENCES post(post_id));");
@@ -54,7 +54,7 @@ public class Login extends ActionBarActivity {
         db.execSQL("CREATE TABLE IF NOT EXISTS blocked (id_blocker INT, id_blocked INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS messages (id_sender INT, id_receiver INT, text VARCHAR);");
         db.execSQL("CREATE TABLE IF NOT EXISTS shares (member_id INT, post_id INT);");
-        db.execSQL("CREATE TABLE IF NOT EXISTS likes (member_id INT, post_id INT);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS likes (member_id INT, post_id INT, PRIMARY KEY (member_id, post_id));");
         db.execSQL("CREATE TABLE IF NOT EXISTS reply_to_reply (replied_to_id INT, reply_id INT, depth INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS hash_tag (text VARCHAR, number_of_repeats INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS post_tags (post_id INT, text VARCHAR);");

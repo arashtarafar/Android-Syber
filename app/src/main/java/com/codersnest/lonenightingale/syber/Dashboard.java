@@ -94,7 +94,7 @@ public class Dashboard extends ActionBarActivity {
         Status[] posts = null;
         int numberOfPosts = 0;
 
-        Cursor cursor = db.rawQuery("SELECT post_id, user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member ORDER BY date, time DESC", null);
+        Cursor cursor = db.rawQuery("SELECT post_id, user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member ORDER BY date_time DESC", null);
         numberOfPosts = cursor.getCount();
         cursor.moveToFirst();
 
@@ -132,6 +132,7 @@ public class Dashboard extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         db = context.openOrCreateDatabase("database", context.MODE_PRIVATE, null);
+        updateDatabase();
     }
 
     @Override
@@ -145,28 +146,32 @@ public class Dashboard extends ActionBarActivity {
 
         if(!text.isEmpty()) {
             //        db.execSQL("INSERT INTO post VALUES ('" + prefs.getInt("post_id", 0) + "', '" + userId + "', '" + input.getText().toString() + "', '0', '0', '0', '0');");
-            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, number_of_hash_tags) VALUES ('" + userId + "', '" + text + "', '0', date(), time(), '0');");
+            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, date_time, number_of_hash_tags) VALUES ('" + userId + "', '" + text + "', '0', date(), time(), datetime(), '0');");
 
-//            Cursor cursor = db.rawQuery("SELECT post_id FROM post WHERE (user_id, text) = (" + userId + ", " + text + ")", null);
-//            cursor.moveToFirst();
+            Cursor cursor = db.rawQuery("SELECT post_id FROM post WHERE user_id = '" + userId + "' AND text = '" + text + "'", null);
+            cursor.moveToFirst();
 
             input.setText("");
 
 
             //        db.execSQL("INSERT INTO status VALUES ('" + prefs.getInt("post_id", 0) + "', '0', '0');");
-            db.execSQL("INSERT INTO status (number_of_comments, number_of_shares) SELECT 0, 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
+            db.execSQL("INSERT INTO status (post_id, number_of_comments, number_of_shares) SELECT " + cursor.getInt(cursor.getColumnIndex("post_id")) + ", 0, 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
             // Causes FC when posting duplicate statuses
 
             //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
 
             // Inefficient method for updating the list of posts
-            mAdapter = new ListAdapter(getPosts());
-            mRecyclerView.setAdapter(mAdapter);
-            mAdapter.notifyDataSetChanged();
+            updateDatabase();
         }
         else {
             Toast.makeText(context, "Enter Text!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void updateDatabase() {
+        mAdapter = new ListAdapter(getPosts());
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
     }
 
     private class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
@@ -226,6 +231,7 @@ public class Dashboard extends ActionBarActivity {
                         Intent window = new Intent(context, Profile.class);
                         window.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         window.putExtra("userId", mDataset[position].getAuthorId());
+                        window.putExtra("observerId", userId);
                         startActivity(window);
                     }
                 }
@@ -234,6 +240,7 @@ public class Dashboard extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, Details.class);
+                    intent.putExtra("userId", userId);
                     intent.putExtra("postId", mDataset[position].getPostId());
                     startActivity(intent);
                 }

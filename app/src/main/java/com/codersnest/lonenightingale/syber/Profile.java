@@ -18,9 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -35,6 +37,7 @@ public class Profile extends ActionBarActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private int userId;
+    private int observerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,7 @@ public class Profile extends ActionBarActivity {
         context = getApplicationContext();
 
         userId = getIntent().getExtras().getInt("userId");
+        observerId = getIntent().getExtras().getInt("observerId");
 
         db = context.openOrCreateDatabase("database", context.MODE_PRIVATE, null);
 
@@ -94,7 +98,7 @@ public class Profile extends ActionBarActivity {
         Status[] posts = null;
         int numberOfPosts = 0;
 
-        Cursor cursor = db.rawQuery("SELECT post_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member WHERE user_id = '" + userId + "' ORDER BY date, time DESC", null);
+        Cursor cursor = db.rawQuery("SELECT post_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN status NATURAL JOIN member WHERE user_id = '" + userId + "' ORDER BY date_time DESC", null);
         numberOfPosts = cursor.getCount();
         cursor.moveToFirst();
 
@@ -154,6 +158,12 @@ public class Profile extends ActionBarActivity {
         return false;
     }
 
+    private void updateDatabase() {
+        mAdapter = new ListAdapter(getPosts());
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+    }
+
     private class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         private Status[] mDataset;
 
@@ -200,8 +210,28 @@ public class Profile extends ActionBarActivity {
             // code to assign data to different views inside the view_holder
             TextView tv = (TextView) holder.v.findViewById(R.id.text_post_content_profile);
             TextView tv2 = (TextView) holder.v.findViewById(R.id.indic_details_profile);
+
+            Button btn = (Button) holder.v.findViewById(R.id.button_like_profile);
+
             tv.setText(mDataset[position].getText());
             tv2.setText("Written on " + mDataset[position].getDate() + " in " + mDataset[position].getTime() + " with " + mDataset[position].getNumberOfLikes() + " likes, " + mDataset[position].getNumberOfComments() + " comments and " + mDataset[position].getNumberOfShares() + " shares so far...");
+
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        db.execSQL("INSERT INTO likes VALUES (" + observerId + ", " + mDataset[position].getPostId() + ");");
+                        db.execSQL("UPDATE post SET number_of_likes = number_of_likes + 1 WHERE post_id = " + mDataset[position].getPostId() + ";");
+                        updateDatabase();
+                    }
+                    catch (Exception e) {
+                        db.execSQL("DELETE FROM likes WHERE member_id = " + observerId + " AND post_id = " + mDataset[position].getPostId() + ";");
+                        db.execSQL("UPDATE post SET number_of_likes = number_of_likes - 1 WHERE post_id = " + mDataset[position].getPostId() + ";");
+                        Toast.makeText(context, "Post Un-Liked!!", Toast.LENGTH_SHORT).show();
+                        updateDatabase();
+                    }
+                }
+            });
         }
 
         // Return the size of your dataset (invoked by the layout manager)

@@ -17,7 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class Details extends ActionBarActivity {
@@ -33,7 +36,10 @@ public class Details extends ActionBarActivity {
     private TextView details;
     private TextView indicNoComments;
 
+    private EditText input;
+
     private int postId;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,7 @@ public class Details extends ActionBarActivity {
 
         context = getApplicationContext();
 
+        userId = getIntent().getExtras().getInt("userId");
         postId = getIntent().getExtras().getInt("postId");
 
         db = context.openOrCreateDatabase("database", context.MODE_PRIVATE, null);
@@ -59,6 +66,8 @@ public class Details extends ActionBarActivity {
         text = (TextView) findViewById(R.id.text_post_content_details);
         details = (TextView) findViewById(R.id.indic_post_details);
         indicNoComments = (TextView) findViewById(R.id.indic_no_comments);
+
+        input = (EditText) findViewById(R.id.field_comment);
 
         actionBar.setTitle(cursor.getString(cursor.getColumnIndex("text")));
 
@@ -113,12 +122,51 @@ public class Details extends ActionBarActivity {
         }
     }
 
+    public void comment (View v) {
+        String text = input.getText().toString();
+
+        if(!text.isEmpty()) {
+            //        db.execSQL("INSERT INTO post VALUES ('" + prefs.getInt("post_id", 0) + "', '" + userId + "', '" + input.getText().toString() + "', '0', '0', '0', '0');");
+            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, date_time, number_of_hash_tags) VALUES ('" + userId + "', '" + text + "', '0', date(), time(), datetime(), '0');");
+
+            Cursor cursor = db.rawQuery("SELECT post_id FROM post WHERE user_id = '" + userId + "' AND text = '" + text + "'", null);
+            cursor.moveToFirst();
+
+            input.setText("");
+
+
+            //        db.execSQL("INSERT INTO status VALUES ('" + prefs.getInt("post_id", 0) + "', '0', '0');");
+            db.execSQL("INSERT INTO comment (status_id, post_id, number_of_replies) SELECT " + postId + ", " + cursor.getInt(cursor.getColumnIndex("post_id")) + ", 0 FROM post WHERE user_id = " + userId + " AND text = \"" + text + "\";");
+            // You know what mistake you made here!
+
+            //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
+
+            // Inefficient method for updating the list of posts
+            updateDatabase();
+        }
+        else {
+            Toast.makeText(context, "Enter Text!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateDatabase() {
+        mAdapter = new ListAdapter(getComments());
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void updateDetails() {
+        Cursor cursor = db.rawQuery("SELECT user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN member NATURAL JOIN status WHERE post_id = '" + postId + "'", null);
+        cursor.moveToFirst();
+        details.setText("Written by " + cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name")) + " on " + cursor.getString(cursor.getColumnIndex("date")) + " in " + cursor.getString(cursor.getColumnIndex("time")) + " with " + cursor.getInt(cursor.getColumnIndex("number_of_likes")) + " likes, " + cursor.getInt(cursor.getColumnIndex("number_of_comments")) + " comments and " + cursor.getInt(cursor.getColumnIndex("number_of_shares")) + " shares so far...");
+    }
+
     private Comment[] getComments () {
 
         Comment[] comments = null;
         int numberOfComments = 0;
 
-        Cursor cursor = db.rawQuery("SELECT post_id, user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_replies FROM post NATURAL JOIN comment NATURAL JOIN member WHERE status_id = '" + postId + "' ORDER BY date, time DESC", null);
+        Cursor cursor = db.rawQuery("SELECT post_id, user_id, text, first_name, last_name, time, date, date_time, number_of_likes, number_of_hash_tags, number_of_replies FROM post NATURAL JOIN comment NATURAL JOIN member WHERE status_id = '" + postId + "' ORDER BY date_time DESC", null);
         numberOfComments = cursor.getCount();
         cursor.moveToFirst();
 
@@ -141,6 +189,20 @@ public class Details extends ActionBarActivity {
         }
 
         return comments;
+    }
+
+    public void like(View v) {
+        try {
+            db.execSQL("INSERT INTO likes VALUES (" + userId + ", " + postId + ");");
+            db.execSQL("UPDATE post SET number_of_likes = number_of_likes + 1 WHERE post_id = " + postId + ";");
+            updateDetails();
+        }
+        catch (Exception e) {
+            db.execSQL("DELETE FROM likes WHERE member_id = " + userId + " AND post_id = " + postId + ";");
+            db.execSQL("UPDATE post SET number_of_likes = number_of_likes - 1 WHERE post_id = " + postId + ";");
+            Toast.makeText(context, "Post Un-Liked!!", Toast.LENGTH_SHORT).show();
+            updateDetails();
+        }
     }
 
     @Override
@@ -198,7 +260,7 @@ public class Details extends ActionBarActivity {
         public ViewHolder onCreateViewHolder(ViewGroup parent,
                                              int viewType) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.status_profile, parent, false);
+                    .inflate(R.layout.comment_item, parent, false);
             return new ViewHolder(v);
         }
 
