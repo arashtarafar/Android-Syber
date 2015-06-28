@@ -67,4 +67,60 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Be the first one to comment!"
+        android:id="@+id/indic_no_comments"
+        android:layout_below="@+id/indic_comments"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingBottom="10dp"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Leave a comment!"
+        android:id="@+id/button_comment"
+        android:background="@drawable/button_shape"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="post"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/field_comment"
+        android:minLines="3"
+        android:maxLines="3"
+        android:nestedScrollingEnabled="false"
+        android:background="@drawable/field_shape"
+        android:paddingLeft="10sp"
+        android:paddingRight="10sp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/button_comment"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list_comments"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/indic_no_comments"
+        android:layout_above="@id/field_comment"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
 </RelativeLayout>

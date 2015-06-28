@@ -48,7 +48,9 @@
         <activity
             android:name=".Details"
             android:label="@string/title_activity_details"
-            android:parentActivityName=".Dashboard" >
+            android:screenOrientation="portrait"
+            android:parentActivityName=".Dashboard"
+            android:theme="@style/Theme.FloatingWindow.Popup">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codersnest.lonenightingale.syber.Dashboard" />

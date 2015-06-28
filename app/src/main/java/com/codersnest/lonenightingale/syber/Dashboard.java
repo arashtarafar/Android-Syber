@@ -11,14 +11,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -215,8 +213,8 @@ public class Dashboard extends ActionBarActivity {
             // - replace the contents of the view with that element
 
             // code to assign data to different views inside the view_holder
-            TextView tv = (TextView) holder.v.findViewById(R.id.text_post_content);
-            TextView tv2 = (TextView) holder.v.findViewById(R.id.indic_details);
+            TextView tv = (TextView) holder.v.findViewById(R.id.text_comment_content);
+            TextView tv2 = (TextView) holder.v.findViewById(R.id.indic_comment_details);
             Button comments = (Button) holder.v.findViewById(R.id.button_comments);
             tv.setText(mDataset[position].getText());
             tv2.setText("Written by " + mDataset[position].getAuthor() + " on " + mDataset[position].getDate() + " in " + mDataset[position].getTime() + " with " + mDataset[position].getNumberOfLikes() + " likes, " + mDataset[position].getNumberOfComments() + " comments and " + mDataset[position].getNumberOfShares() + " shares so far...");
@@ -238,7 +236,6 @@ public class Dashboard extends ActionBarActivity {
                     Intent intent = new Intent(context, Details.class);
                     intent.putExtra("postId", mDataset[position].getPostId());
                     startActivity(intent);
-                    overridePendingTransition(R.anim.slide_out_left,R.anim.slide_in_right);
                 }
             });
         }
