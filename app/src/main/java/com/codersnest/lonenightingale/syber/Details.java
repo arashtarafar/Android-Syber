@@ -38,6 +38,8 @@ public class Details extends ActionBarActivity {
     private TextView indicNoComments;
 
     private EditText input;
+    private EditText tag1;
+    private EditText tag2;
 
     private int postId;
     private int userId;
@@ -69,6 +71,8 @@ public class Details extends ActionBarActivity {
         indicNoComments = (TextView) findViewById(R.id.indic_no_comments);
 
         input = (EditText) findViewById(R.id.field_comment);
+        tag1 = (EditText) findViewById(R.id.commentTag1);
+        tag2 = (EditText) findViewById(R.id.commentTag2);
 
         actionBar.setTitle(cursor.getString(cursor.getColumnIndex("text")));
 
@@ -125,6 +129,8 @@ public class Details extends ActionBarActivity {
 
     public void comment (View v) {
         String text = input.getText().toString();
+        String tag1Text = tag1.getText().toString();
+        String tag2Text = tag2.getText().toString();
 
         if(!text.isEmpty()) {
             //        db.execSQL("INSERT INTO post VALUES ('" + prefs.getInt("post_id", 0) + "', '" + userId + "', '" + input.getText().toString() + "', '0', '0', '0', '0');");
@@ -144,6 +150,31 @@ public class Details extends ActionBarActivity {
 
             // Inefficient method for updating the list of posts
             db.execSQL("UPDATE status SET number_of_comments = number_of_comments + 1 WHERE post_id = " + postId + ";");
+            if(!tag1Text.isEmpty()) {
+                Cursor cursor2 = db.rawQuery("SELECT * FROM hash_tag WHERE text = '" + tag1Text + "'", null);
+                cursor2.moveToFirst();
+
+                if(cursor2 != null) {
+                    db.execSQL("UPDATE hash_tag SET number_of_repeats = number_of_repeats + 1 WHERE text = '" + tag1Text + "';");
+                }
+                else {
+                    db.execSQL("INSERT INTO hash_tag VALUES('" + tag1Text + "', 1);");
+                }
+                db.execSQL("INSERT INTO post_tags VALUES(" + cursor.getInt(cursor.getColumnIndex("post_id")) + ", '" + tag1Text + "');");
+            }
+
+            if(!tag1Text.isEmpty()) {
+                Cursor cursor3 = db.rawQuery("SELECT post_id FROM post WHERE user_id = '" + userId + "' AND text = '" + text + "'", null);
+                cursor3.moveToFirst();
+
+                if(cursor3 != null) {
+                    db.execSQL("UPDATE hash_tag SET number_of_repeats = number_of_repeats + 1 WHERE text = '" + tag2Text + "';");
+                }
+                else {
+                    db.execSQL("INSERT INTO hash_tag VALUES('" + tag2Text + "', 1);");
+                }
+                db.execSQL("INSERT INTO post_tags VALUES(" + cursor.getInt(cursor.getColumnIndex("post_id")) + ", '" + tag2Text + "');");
+            }
             updateDatabase();
             updateDetails();
         }

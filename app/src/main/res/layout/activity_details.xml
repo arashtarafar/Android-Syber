@@ -109,7 +109,7 @@
         android:paddingLeft="10sp"
         android:paddingRight="10sp"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/button_comment"
+        android:layout_above="@+id/commentTag1"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp" />
@@ -122,5 +122,35 @@
         android:layout_below="@+id/indic_no_comments"
         android:layout_above="@id/field_comment"
         android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:minLines="2"
+        android:maxLines="2"
+        android:id="@+id/commentTag1"
+        android:background="@drawable/field_shape"
+        android:layout_above="@+id/button_comment"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:paddingLeft="10sp"
+        android:paddingRight="10sp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp" />
+
+    <EditText
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:minLines="2"
+        android:maxLines="2"
+        android:id="@+id/commentTag2"
+        android:background="@drawable/field_shape"
+        android:layout_above="@+id/button_comment"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="10sp"
+        android:paddingRight="10sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp" />
 
 </RelativeLayout>
