@@ -52,7 +52,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="10dp"
+        android:onClick="share" />
 
     <TextView
         android:layout_width="match_parent"

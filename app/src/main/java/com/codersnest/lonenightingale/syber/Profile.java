@@ -227,7 +227,7 @@ public class Profile extends ActionBarActivity {
                     catch (Exception e) {
                         db.execSQL("DELETE FROM likes WHERE member_id = " + observerId + " AND post_id = " + mDataset[position].getPostId() + ";");
                         db.execSQL("UPDATE post SET number_of_likes = number_of_likes - 1 WHERE post_id = " + mDataset[position].getPostId() + ";");
-                        Toast.makeText(context, "Post Un-Liked!!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Post Un-Liked!", Toast.LENGTH_SHORT).show();
                         updateDatabase();
                     }
                 }

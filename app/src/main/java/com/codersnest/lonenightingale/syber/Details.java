@@ -1,6 +1,7 @@
 package com.codersnest.lonenightingale.syber;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBar;
@@ -142,10 +143,43 @@ public class Details extends ActionBarActivity {
             //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
 
             // Inefficient method for updating the list of posts
+            db.execSQL("UPDATE status SET number_of_comments = number_of_comments + 1 WHERE post_id = " + postId + ";");
             updateDatabase();
+            updateDetails();
         }
         else {
             Toast.makeText(context, "Enter Text!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void share (View v) {
+        try {
+            db.execSQL("INSERT INTO shares VALUES (" + userId + ", " + postId + ");");
+
+            Cursor cursor = db.rawQuery("SELECT user_id, text, first_name, last_name, time, date, number_of_likes, number_of_hash_tags, number_of_comments, number_of_shares FROM post NATURAL JOIN member NATURAL JOIN status WHERE post_id = '" + postId + "'", null);
+            cursor.moveToFirst();
+
+            String shareText = "Originally written by " + cursor.getString(cursor.getColumnIndex("first_name")) + " " + cursor.getString(cursor.getColumnIndex("last_name")) + " :\n" + text.getText().toString();
+            //        db.execSQL("INSERT INTO post VALUES ('" + prefs.getInt("post_id", 0) + "', '" + userId + "', '" + input.getText().toString() + "', '0', '0', '0', '0');");
+            db.execSQL("INSERT INTO post (user_id, text, number_of_likes, date, time, date_time, number_of_hash_tags) VALUES ('" + userId + "', '" + shareText + "', '0', date(), time(), datetime(), '0');");
+
+            Cursor cursor2 = db.rawQuery("SELECT post_id FROM post WHERE user_id = '" + userId + "' AND text = '" + shareText + "'", null);
+            cursor2.moveToFirst();
+
+            input.setText("");
+
+
+            //        db.execSQL("INSERT INTO status VALUES ('" + prefs.getInt("post_id", 0) + "', '0', '0');");
+            db.execSQL("INSERT INTO status (post_id, number_of_comments, number_of_shares) SELECT " + cursor2.getInt(cursor2.getColumnIndex("post_id")) + ", 0, 0 FROM post WHERE user_id = " + userId + " AND text = '" + shareText + "';");
+
+            //        editor.putInt("post_id", prefs.getInt("post_id", 0) + 1).commit();
+
+            // Inefficient method for updating the list of posts
+            db.execSQL("UPDATE status SET number_of_shares = number_of_shares + 1 WHERE post_id = " + postId + ";");
+            updateDetails();
+        }
+        catch (Exception e) {
+            Toast.makeText(context, "You cannot share this post twice!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -200,7 +234,7 @@ public class Details extends ActionBarActivity {
         catch (Exception e) {
             db.execSQL("DELETE FROM likes WHERE member_id = " + userId + " AND post_id = " + postId + ";");
             db.execSQL("UPDATE post SET number_of_likes = number_of_likes - 1 WHERE post_id = " + postId + ";");
-            Toast.makeText(context, "Post Un-Liked!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Post Un-Liked!", Toast.LENGTH_SHORT).show();
             updateDetails();
         }
     }
@@ -276,6 +310,19 @@ public class Details extends ActionBarActivity {
 
             tv.setText(mDataset[position].getText());
             tv2.setText("Written by " + mDataset[position].getAuthor() + " on " + mDataset[position].getDate() + " in " + mDataset[position].getTime() + " with " + mDataset[position].getNumberOfLikes() + " likes and " + mDataset[position].getNumberOfReplies() + " replies so far...");
+            tv2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(mDataset[position].getAuthorId() != userId)
+                    {
+                        Intent window = new Intent(context, Profile.class);
+                        window.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        window.putExtra("userId", mDataset[position].getAuthorId());
+                        window.putExtra("observerId", userId);
+                        startActivity(window);
+                    }
+                }
+            });
         }
 
         // Return the size of your dataset (invoked by the layout manager)

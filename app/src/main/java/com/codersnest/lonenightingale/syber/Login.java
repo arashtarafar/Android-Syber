@@ -53,7 +53,7 @@ public class Login extends ActionBarActivity {
         db.execSQL("CREATE TABLE IF NOT EXISTS follower (id_follower INT, id_followed INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS blocked (id_blocker INT, id_blocked INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS messages (id_sender INT, id_receiver INT, text VARCHAR);");
-        db.execSQL("CREATE TABLE IF NOT EXISTS shares (member_id INT, post_id INT);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS shares (member_id INT, post_id INT, PRIMARY KEY (member_id, post_id));");
         db.execSQL("CREATE TABLE IF NOT EXISTS likes (member_id INT, post_id INT, PRIMARY KEY (member_id, post_id));");
         db.execSQL("CREATE TABLE IF NOT EXISTS reply_to_reply (replied_to_id INT, reply_id INT, depth INT);");
         db.execSQL("CREATE TABLE IF NOT EXISTS hash_tag (text VARCHAR, number_of_repeats INT);");
