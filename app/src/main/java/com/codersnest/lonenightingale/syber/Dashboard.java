@@ -1,22 +1,29 @@
 package com.codersnest.lonenightingale.syber;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -117,12 +124,26 @@ public class Dashboard extends ActionBarActivity {
         return posts;
     }
 
+    @SuppressLint("NewApi")
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_dashboard, menu);
+
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 overridePendingTransition(R.anim.slide_out_right,R.anim.slide_in_left);
+                return true;
+            case R.id.action_search:
+                Intent window = new Intent(context, Search.class);
+                window.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(window);
                 return true;
         }
         return false;

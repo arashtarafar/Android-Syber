@@ -48,9 +48,20 @@
         <activity
             android:name=".Details"
             android:label="@string/title_activity_details"
-            android:screenOrientation="portrait"
             android:parentActivityName=".Dashboard"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.FloatingWindow.Popup" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codersnest.lonenightingale.syber.Dashboard" />
+        </activity>
+        <activity
+            android:name=".Search"
+            android:label="@string/title_activity_search"
+            android:parentActivityName=".Dashboard"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FloatingWindow.Popup">
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codersnest.lonenightingale.syber.Dashboard" />
